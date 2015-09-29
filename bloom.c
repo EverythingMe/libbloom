@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -62,7 +63,7 @@ static int bloom_check_add(struct bloom * bloom,
 }
 
 
-int bloom_init(struct bloom * bloom, int entries, double error)
+int bloom_init(struct bloom * bloom, size_t entries, double error)
 {
   bloom->ready = 0;
 
@@ -78,7 +79,7 @@ int bloom_init(struct bloom * bloom, int entries, double error)
   bloom->bpe = -(num / denom);
 
   double dentries = (double)entries;
-  bloom->bits = (int)(dentries * bloom->bpe);
+  bloom->bits = (size_t)(dentries * bloom->bpe);
 
   if (bloom->bits % 8) {
     bloom->bytes = (bloom->bits / 8) + 1;
@@ -98,13 +99,13 @@ int bloom_init(struct bloom * bloom, int entries, double error)
 }
 
 
-int bloom_check(struct bloom * bloom, const void * buffer, int len)
+int bloom_check(struct bloom * bloom, const void * buffer, size_t len)
 {
   return bloom_check_add(bloom, buffer, len, 0);
 }
 
 
-int bloom_add(struct bloom * bloom, const void * buffer, int len)
+int bloom_add(struct bloom * bloom, const void * buffer, size_t len)
 {
   return bloom_check_add(bloom, buffer, len, 1);
 }
@@ -113,11 +114,11 @@ int bloom_add(struct bloom * bloom, const void * buffer, int len)
 void bloom_print(struct bloom * bloom)
 {
   (void)printf("bloom at %p\n", (void *)bloom);
-  (void)printf(" ->entries = %d\n", bloom->entries);
+  (void)printf(" ->entries = %ld\n", bloom->entries);
   (void)printf(" ->error = %f\n", bloom->error);
-  (void)printf(" ->bits = %d\n", bloom->bits);
+  (void)printf(" ->bits = %ld\n", bloom->bits);
   (void)printf(" ->bits per elem = %f\n", bloom->bpe);
-  (void)printf(" ->bytes = %d\n", bloom->bytes);
+  (void)printf(" ->bytes = %ld\n", bloom->bytes);
   (void)printf(" ->hash functions = %d\n", bloom->hashes);
 }
 
